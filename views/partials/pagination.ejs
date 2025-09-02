@@ -1,0 +1,10 @@
+<%
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
+  const current = Math.min(Math.max(1, page), totalPages);
+  const mk = (p) => `${baseUrl}?page=${p}&limit=${perPage}${q ? `&q=${encodeURIComponent(q)}` : ''}`;
+%>
+<nav class="pagination">
+  <a class="btn btn-small <%= current === 1 ? 'disabled' : '' %>" href="<%= current === 1 ? '#' : mk(current - 1) %>">Prev</a>
+  <span class="muted">Page <strong><%= current %></strong> of <strong><%= totalPages %></strong></span>
+  <a class="btn btn-small <%= current === totalPages ? 'disabled' : '' %>" href="<%= current === totalPages ? '#' : mk(current + 1) %>">Next</a>
+</nav>

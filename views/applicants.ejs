@@ -1,0 +1,16 @@
+
+<section>
+  <h2>Applicants for <%= job.jobdesignation %> (<%= applicants.length %>)</h2>
+  <ul class="list">
+    <% applicants.forEach(a => { %>
+      <li class="list-row">
+        <div>
+          <strong><%= a.name %></strong> — <%= a.email %> — <%= a.contact %>
+        </div>
+        <% if (a.resumePath) { %>
+          <a class="btn btn-small" href="<%= a.resumePath %>" target="_blank" rel="noopener">View Resume</a>
+        <% } %>
+      </li>
+    <% }) %>
+  </ul>
+</section>

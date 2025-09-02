@@ -1,0 +1,18 @@
+<% if (errors && errors.length) { %>
+  <div class="alert">
+    <ul>
+      <% errors.forEach(e => { %>
+        <li><%= e.msg %></li>
+      <% }) %>
+    </ul>
+  </div>
+<% } %>
+<% if (flash && flash.length) { %>
+  <div class="alert">
+    <ul>
+      <% flash.forEach(m => { %>
+        <li><%= m %></li>
+      <% }) %>
+    </ul>
+  </div>
+<% } %>

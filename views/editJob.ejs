@@ -1,0 +1,16 @@
+
+<h2>Edit job</h2>
+<% if (errors && errors.length) { %>
+  <div class="alert"><ul><% errors.forEach(e => { %><li><%= e.msg %></li><% }) %></ul></div>
+<% } %>
+<form method="post" action="/jobs/<%= job.id %>" class="form grid-2">
+  <label>Category <input name="jobcategory" value="<%= job.jobcategory %>" required /></label>
+  <label>Designation <input name="jobdesignation" value="<%= job.jobdesignation %>" required /></label>
+  <label>Location <input name="joblocation" value="<%= job.joblocation %>" required /></label>
+  <label>Company <input name="companyname" value="<%= job.companyname %>" required /></label>
+  <label>Salary <input name="salary" value="<%= job.salary %>" required /></label>
+  <label>Apply by <input name="applyby" type="date" value="<%= job.applyby %>" required /></label>
+  <label>Skills (comma separated) <input name="skillsrequired" value="<%= job.skillsrequired.join(', ') %>" /></label>
+  <label>Openings <input name="numberofopenings" type="number" min="1" value="<%= job.numberofopenings %>" required /></label>
+  <button class="btn btn-primary">Update</button>
+</form>

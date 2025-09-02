@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= title ? `${title} • Easily` : 'Easily - Premium Job Portal' %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/public/css/main.css"/>
+</head>
+<body>
+  <header class="modern-header">
+    <nav class="nav-container">
+      <a class="brand" href="/">
+        <i class="fas fa-briefcase"></i>
+        <span>Easily</span>
+      </a>
+      <div class="nav-links">
+        <a href="/jobs" class="nav-link">
+          <i class="fas fa-search"></i>
+          Find Jobs
+        </a>
+        <% if (user) { %>
+          <a href="/jobs/new" class="nav-link">
+            <i class="fas fa-plus"></i>
+            Post Job
+          </a>
+          <div class="user-menu">
+            <button class="user-avatar" onclick="toggleDropdown()">
+              <%= user.name.charAt(0).toUpperCase() %>
+            </button>
+            <div class="dropdown" id="userDropdown">
+              <p class="user-name"><%= user.name %></p>
+              <a href="/profile" class="dropdown-link">
+                <i class="fas fa-user"></i>Profile
+              </a>
+              <a href="/dashboard" class="dropdown-link">
+                <i class="fas fa-chart-line"></i>Dashboard
+              </a>
+              <form action="/logout" method="post">
+                <button class="dropdown-link logout-btn">
+                  <i class="fas fa-sign-out-alt"></i>Logout
+                </button>
+              </form>
+            </div>
+          </div>
+        <% } else { %>
+          <a href="/login" class="nav-link">Login</a>
+          <a href="/register" class="btn btn-primary">Get Started</a>
+        <% } %>
+      </div>
+      <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+      </button>
+    </nav>
+  </header>
+
+  <main class="main-content">
+    <% if (lastVisit) { %>
+      <div class="welcome-back">
+        <i class="fas fa-clock"></i>
+        Welcome back! Last visit: <%= lastVisit %>
+      </div>
+    <% } %>
+    <%- body %>
+  </main>
+
+  <footer class="modern-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>Easily</h4>
+        <p>Connecting talent with opportunity</p>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-linkedin"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-github"></i></a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h4>For Job Seekers</h4>
+        <a href="/jobs">Browse Jobs</a>
+        <a href="/companies">Companies</a>
+        <a href="/resources">Career Resources</a>
+      </div>
+      <div class="footer-section">
+        <h4>For Employers</h4>
+        <a href="/post-job">Post a Job</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/contact">Contact Sales</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© <%= new Date().getFullYear() %> Easily. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <div id="toast-container"></div>
+  <script defer src="/public/js/ui.js"></script>
+</body>
+</html>

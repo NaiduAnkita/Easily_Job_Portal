@@ -1,0 +1,65 @@
+<% layout('layouts/layout') %>
+<section class="toolbar">
+  <div class="searchbar">
+    <input id="filterQuery" type="text" placeholder="Search roles, company, location, skills"/>
+    <select id="filterLocation">
+      <option value="">All locations</option>
+      <% [...new Set(jobs.map(j => j.joblocation))].forEach(loc => { %>
+        <option value="<%= loc %>"><%= loc %></option>
+      <% }) %>
+    </select>
+    <select id="filterCategory">
+      <option value="">All categories</option>
+      <% [...new Set(jobs.map(j => j.jobcategory))].forEach(cat => { %>
+        <option value="<%= cat %>"><%= cat %></option>
+      <% }) %>
+    </select>
+    <button class="btn" id="applyFilters">Apply</button>
+  </div>
+</section>
+
+<section class="grid" id="jobsGrid">
+  <% jobs.forEach(job => { %>
+    <article class="card job" data-loc="<%= job.joblocation %>" data-cat="<%= job.jobcategory %>" data-sk="<%= job.skillsrequired.join(' ').toLowerCase() %>" data-ttl="<%= job.jobdesignation.toLowerCase() %>" data-co="<%= job.companyname.toLowerCase() %>">
+      <header>
+        <h3><%= job.jobdesignation %></h3>
+        <span class="badge"><%= job.jobcategory %></span>
+      </header>
+      <p class="muted"><%= job.companyname %> • <%= job.joblocation %></p>
+      <p>Skills: <%= job.skillsrequired.join(', ') %></p>
+      <div class="actions">
+        <a class="btn btn-small" href="/jobs/<%= job.id %>">Details</a>
+        <button class="btn btn-small btn-outline" data-bookmark="<%= job.id %>">Save</button>
+      </div>
+    </article>
+  <% }) %>
+</section>
+
+<script>
+  const q = document.getElementById('filterQuery');
+  const loc = document.getElementById('filterLocation');
+  const cat = document.getElementById('filterCategory');
+  const grid = document.getElementById('jobsGrid');
+  document.getElementById('applyFilters').addEventListener('click', () => {
+    const qq = (q.value||'').toLowerCase();
+    const lc = (loc.value||'').toLowerCase();
+    const ct = (cat.value||'').toLowerCase();
+    grid.querySelectorAll('.job').forEach(card => {
+      const ok = (!lc || card.dataset.loc.toLowerCase() === lc)
+        && (!ct || card.dataset.cat.toLowerCase() === ct)
+        && (
+          !qq ||
+          card.dataset.ttl.includes(qq) ||
+          card.dataset.co.includes(qq) ||
+          card.dataset.sk.includes(qq)
+        );
+      card.style.display = ok ? '' : 'none';
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-bookmark]');
+    if (!btn) return;
+    btn.textContent = 'Saved';
+  });
+</script>
