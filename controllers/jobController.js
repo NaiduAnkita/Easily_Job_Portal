@@ -4,19 +4,55 @@ export function landing(req, res) {
   res.render('index', { title: 'Easily', jobs, user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
 }
 
+// export function listJobs(req, res) {
+//   const q = (req.query.q || '').toLowerCase();
+//   let jobs = getAllJobs();
+//   if (q) {
+//     jobs = jobs.filter(j =>
+//       j.job_designation.toLowerCase().includes(q) ||
+//       j.company_name.toLowerCase().includes(q) ||
+//       j.job_location.toLowerCase().includes(q) ||
+//       j.skills_required.join(' ').toLowerCase().includes(q)
+//     );
+//   }
+//   res.render('list-all-jobs', { title: 'Jobs', jobs, user: req.session.user || null, lastVisit: req.cookies.lastVisit || null, q: req.query.q || '' });
+// }
+
 export function listJobs(req, res) {
   const q = (req.query.q || '').toLowerCase();
-  let jobs = getAllJobs();
+  const page = parseInt(req.query.page) || 1;
+  const limit = 6; // Or any number of jobs you want per page
+
+  let result = getAllJobs(page, limit);
+
   if (q) {
-    jobs = jobs.filter(j =>
+    const allJobs = getAllJobs(1, Infinity).jobs; // Get all jobs for filtering
+    const filteredJobs = allJobs.filter(j =>
       j.job_designation.toLowerCase().includes(q) ||
       j.company_name.toLowerCase().includes(q) ||
       j.job_location.toLowerCase().includes(q) ||
       j.skills_required.join(' ').toLowerCase().includes(q)
     );
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    result = {
+      jobs: filteredJobs.slice(startIndex, endIndex),
+      currentPage: page,
+      totalPages: Math.ceil(filteredJobs.length / limit)
+    };
   }
-  res.render('list-all-jobs', { title: 'Jobs', jobs, user: req.session.user || null, lastVisit: req.cookies.lastVisit || null, q: req.query.q || '' });
+
+  res.render('list-all-jobs', { 
+    title: 'Jobs', 
+    jobs: result.jobs,
+    user: req.session.user || null, 
+    lastVisit: req.cookies.lastVisit || null, 
+    q: req.query.q || '',
+    currentPage: result.currentPage,
+    totalPages: result.totalPages
+  });
 }
+
 
 export function jobDetail(req, res) {
   console.log(`id is ${req.params.id}`);
@@ -82,10 +118,30 @@ export function deleteJobPost(req, res) {
   res.redirect('/jobs');
 }
 
+// export function applicantsList(req, res) {
+//   const job = findJobById(req.params.id);
+//   if (!job) return res.status(404).render('404', { title: 'Not Found',errors:[{msg: 'Job not found'}], user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
+//   res.render('all-applicants', { title: 'Applicants', job, applicants: getApplicants(job.id) || [], user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
+// }
+
 export function applicantsList(req, res) {
   const job = findJobById(req.params.id);
   if (!job) return res.status(404).render('404', { title: 'Not Found',errors:[{msg: 'Job not found'}], user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
-  res.render('all-applicants', { title: 'Applicants', job, applicants: getApplicants(job.id) || [], user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = 5; // Applicants per page
+
+  const applicantsData = getApplicants(job.id, page, limit);
+
+  res.render('all-applicants', { 
+    title: 'Applicants', 
+    job, 
+    applicants: applicantsData.applicants, 
+    user: req.session.user || null, 
+    lastVisit: req.cookies.lastVisit || null,
+    currentPage: applicantsData.currentPage,
+    totalPages: applicantsData.totalPages
+  });
 }
 
 export async function applyToJob(req, res, next) {
@@ -107,15 +163,15 @@ console.log("File:", req.file);
   const resumePath = req.file ? `/uploads/resumes/${req.file.filename}` : null;
 
   // Prevent duplicate application
-  const applicants = getApplicants(jobId);
+  const applicants = job.applicants || []; 
   if (applicants.find(a => a.name === name && a.email === email)) {
-    return res.render('postjobapply', {
-      message: `You have already applied for ${job.company_name}!`,
-      companyName: job.company_name,
-      name,
-      email
-    });
-  }
+  return res.render('postjobapply', {
+    message: `You have already applied for ${job.company_name}!`,
+    companyName: job.company_name,
+    name,
+    email
+  });
+}
 
   // Add applicant
   const applicant = addApplicant(jobId, { name, email, contact, resumePath });

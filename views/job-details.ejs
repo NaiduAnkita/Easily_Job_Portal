@@ -76,7 +76,9 @@
               </svg>
               Edit
             </a>
-            <a class="action-btn bookmark-btn" href="/jobs/delete/<%=data.id%>">
+
+            <a class="action-btn bookmark-btn" href="/jobs/delete/<%=data.id%>"
+              onclick="return confirm('Are you sure you want to delete this job?');">
               <i class="fa-regular fa-trash-can fa-lg" style="color: #6b7280;"></i>
               Delete
             </a>
@@ -339,7 +341,7 @@
             <p class="company-description">
               <%= data.company_description %>
             </p>
-            <a href="https://www.<%= data.company_name%>.com" target="parent" class="company-website-link">
+            <a href="https://www.<%=data.company_name%>.com" target="parent" class="company-website-link">
               Visit Website
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
                 <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

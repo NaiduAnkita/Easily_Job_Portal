@@ -10,7 +10,7 @@ export default async function sendConfirmationEmail(req, res, next) {
     await transport.sendMail({
       from: process.env.FROM_EMAIL,
       to: applicant.email,
-      cc:process.env.cc,
+      cc:  process.env.cc,
       subject: `Application received: ${job.job_designation} at ${job.company_name}`,
       text: `Hi ${applicant.name},\n\nThank you for applying to ${job.job_designation} at ${job.company_name}. We have received your application.\n\nRegards,\nEasily Jobs`,
     });

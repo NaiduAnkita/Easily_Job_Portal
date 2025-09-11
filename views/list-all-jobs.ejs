@@ -90,7 +90,9 @@
     </div>
 
     <div class="jobs-section-header">
-      <div class="jobs-found"><span id="jobsCount"><%= jobs.length %></span> jobs found</div>
+      <div class="jobs-found"><span id="jobsCount">
+          <%= jobs.length %>
+        </span> jobs found</div>
       <div class="sort-options">
         <span class="sort-by">Sort by:</span>
         <select class="sort-select" id="sortSelect">
@@ -102,12 +104,42 @@
     </div>
 
     <div class="job-list"></div>
+    <div class="pagination-controls">
+      <% if (totalPages> 1) { %>
+        <nav aria-label="Page navigation">
+          <ul class="pagination">
+            <% if (currentPage> 1) { %>
+              <li class="page-item">
+                <a class="page-link" href="/jobs?page=<%= currentPage - 1 %>" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <% } %>
+                <% for(let i=1; i <=totalPages; i++) { %>
+                  <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                    <a class="page-link" href="/jobs?page=<%= i %>">
+                      <%= i %>
+                    </a>
+                  </li>
+                  <% } %>
+                    <% if (currentPage < totalPages) { %>
+                      <li class="page-item">
+                        <a class="page-link" href="/jobs?page=<%= currentPage + 1 %>" aria-label="Next">
+                          <span aria-hidden="true">&raquo;</span>
+                        </a>
+                      </li>
+                      <% } %>
+          </ul>
+        </nav>
+        <% } %>
+    </div>
   </div>
 </div>
 
 <script>
   // ✅ Inject jobs
-  const jobsData = <%- JSON.stringify(jobs) %>;
+  // const jobsData = <% - JSON.stringify(jobs) %>;
+  const jobsData = <%- JSON.stringify(jobs || []) %>;
 
   const jobList = document.querySelector(".job-list");
   const clearBtn = document.querySelector("#clearFilters");
@@ -144,41 +176,42 @@
             </div>
           </div>
         </div>`;
+
       jobList.insertAdjacentHTML("beforeend", jobCard);
     });
   }
 
   function getSalaryValue(salaryStr) {
-  if (!salaryStr) return 0;
-  const s = salaryStr.toString().toLowerCase();
+    if (!salaryStr) return 0;
+    const s = salaryStr.toString().toLowerCase();
 
-  // detect multipliers
-  const isLpa = /lpa|lac|lakh|lacs|lakhs/.test(s);
-  const isK = /\d+k/.test(s);
-  const isMonthly = /per month|monthly|pcm|pm\b/.test(s);
+    // detect multipliers
+    const isLpa = /lpa|lac|lakh|lacs|lakhs/.test(s);
+    const isK = /\d+k/.test(s);
+    const isMonthly = /per month|monthly|pcm|pm\b/.test(s);
 
-  // extract numeric parts (remove currency, commas, spaces)
-  const numMatches = s.match(/[\d,]+(?:\.\d+)?/g);
-  if (!numMatches) return 0;
+    // extract numeric parts (remove currency, commas, spaces)
+    const numMatches = s.match(/[\d,]+(?:\.\d+)?/g);
+    if (!numMatches) return 0;
 
-  const nums = numMatches.map(token => {
-    const clean = token.replace(/,/g, "");
-    const n = parseFloat(clean);
-    return isNaN(n) ? 0 : n;
-  }).filter(n => n > 0);
+    const nums = numMatches.map(token => {
+      const clean = token.replace(/,/g, "");
+      const n = parseFloat(clean);
+      return isNaN(n) ? 0 : n;
+    }).filter(n => n > 0);
 
-  if (nums.length === 0) return 0;
+    if (nums.length === 0) return 0;
 
-  // scale numbers appropriately
-  const scaled = nums.map(n => {
-    if (isLpa) return n * 100000;   // 1 LPA = 100,000
-    if (isK) return n * 1000;       // e.g. 20k -> 20000
-    return n;                       // already in rupees
-  }).map(n => isMonthly ? n * 12 : n); // annualize monthly
+    // scale numbers appropriately
+    const scaled = nums.map(n => {
+      if (isLpa) return n * 100000;   // 1 LPA = 100,000
+      if (isK) return n * 1000;       // e.g. 20k -> 20000
+      return n;                       // already in rupees
+    }).map(n => isMonthly ? n * 12 : n); // annualize monthly
 
-  // use average for ranges
-  return scaled.reduce((a, b) => a + b, 0) / scaled.length;
-}
+    // use average for ranges
+    return scaled.reduce((a, b) => a + b, 0) / scaled.length;
+  }
   function applyFilters() {
     const selectedDate = document.querySelector("input[name='datePosted']:checked")?.id;
     const selectedExperience = Array.from(document.querySelectorAll("#internship:checked, #entry:checked, #associate:checked, #mid-senior:checked, #director:checked")).map(cb => cb.id);

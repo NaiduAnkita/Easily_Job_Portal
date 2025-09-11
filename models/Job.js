@@ -102,11 +102,28 @@ export function createJob(body, ownerId) {
   return job;
 }
 
-export function getAllJobs() {
-  return jobs
+// export function getAllJobs() {
+//   return jobs
+//     .slice()
+//     .sort((a, b) => new Date(b.job_posted) - new Date(a.job_posted));
+// }
+
+export function getAllJobs(page = 1, limit = 10) {
+  const jobsToRender = jobs
     .slice()
     .sort((a, b) => new Date(b.job_posted) - new Date(a.job_posted));
+  
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+  const paginatedJobs = jobsToRender.slice(startIndex, endIndex);
+  
+  return {
+    jobs: paginatedJobs,
+    currentPage: page,
+    totalPages: Math.ceil(jobsToRender.length / limit),
+  };
 }
+
 
 
 export function findJobById(id) {
@@ -136,7 +153,7 @@ export function updateJob(id, data) {
 }
 
 export function deleteJob(id) {
-  const idx = jobs.findIndex(j => j.id === id);
+  const idx = jobs.findIndex(j => j.id == id); // Changed === to ==
   if (idx === -1) return false;
   jobs.splice(idx, 1);
   return true;
@@ -157,9 +174,24 @@ export function addApplicant(jobId, applicant) {
   return applicantObj;
 }
 
-export function getApplicants(jobId) {
+// export function getApplicants(jobId) {
+//   const job = findJobById(jobId);
+//   return job ? job.applicants : null;
+// }
+export function getApplicants(jobId, page = 1, limit = 5) {
   const job = findJobById(jobId);
-  return job ? job.applicants : null;
+  if (!job) {
+    return null;
+  }
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+  const paginatedApplicants = job.applicants.slice(startIndex, endIndex);
+
+  return {
+    applicants: paginatedApplicants,
+    currentPage: page,
+    totalPages: Math.ceil(job.applicants.length / limit),
+  };
 }
 
 export function getApplicant(jobId, applicantId) {
