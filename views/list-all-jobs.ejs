@@ -30,28 +30,28 @@
 
     <!-- Experience -->
     <div class="filter-section">
-      <div class="filter-heading">Experience level</div>
-      <div class="filter-option">
-        <input type="checkbox" id="internship">
-        <label for="internship">Internship</label>
-      </div>
-      <div class="filter-option">
-        <input type="checkbox" id="entry">
-        <label for="entry">Entry level</label>
-      </div>
-      <div class="filter-option">
-        <input type="checkbox" id="associate">
-        <label for="associate">Associate</label>
-      </div>
-      <div class="filter-option">
-        <input type="checkbox" id="mid-senior">
-        <label for="mid-senior">Mid-Senior level</label>
-      </div>
-      <div class="filter-option">
-        <input type="checkbox" id="director">
-        <label for="director">Director</label>
-      </div>
-    </div>
+  <div class="filter-heading">Experience level</div>
+  <div class="filter-option">
+    <input type="checkbox" id="internship" name="experienceLevel">
+    <label for="internship">Internship</label>
+  </div>
+  <div class="filter-option">
+    <input type="checkbox" id="entry" name="experienceLevel">
+    <label for="entry">Entry level</label>
+  </div>
+  <div class="filter-option">
+    <input type="checkbox" id="associate" name="experienceLevel">
+    <label for="associate">Associate</label>
+  </div>
+  <div class="filter-option">
+    <input type="checkbox" id="mid-senior" name="experienceLevel">
+    <label for="mid-senior">Mid-Senior level</label>
+  </div>
+  <div class="filter-option">
+    <input type="checkbox" id="director" name="experienceLevel">
+    <label for="director">Director</label>
+  </div>
+</div>
 
     <!-- Job Type -->
     <div class="filter-section">
@@ -137,10 +137,7 @@
 </div>
 
 <script>
-  // ✅ Inject jobs
-  // const jobsData = <% - JSON.stringify(jobs) %>;
   const jobsData = <%- JSON.stringify(jobs || []) %>;
-
   const jobList = document.querySelector(".job-list");
   const clearBtn = document.querySelector("#clearFilters");
   const jobsCount = document.querySelector("#jobsCount");
@@ -152,7 +149,7 @@
   function renderJobs(jobs) {
     jobList.innerHTML = "";
     if (jobs.length === 0) {
-      jobList.innerHTML = `<h1 class="text-danger text-center">No jobs found</h1>`;
+      jobList.innerHTML = `<h3 class="text-muted text-center mt-5">No jobs found matching your criteria.</h3>`;
       jobsCount.textContent = 0;
       return;
     }
@@ -176,7 +173,6 @@
             </div>
           </div>
         </div>`;
-
       jobList.insertAdjacentHTML("beforeend", jobCard);
     });
   }
@@ -184,41 +180,31 @@
   function getSalaryValue(salaryStr) {
     if (!salaryStr) return 0;
     const s = salaryStr.toString().toLowerCase();
-
-    // detect multipliers
     const isLpa = /lpa|lac|lakh|lacs|lakhs/.test(s);
     const isK = /\d+k/.test(s);
     const isMonthly = /per month|monthly|pcm|pm\b/.test(s);
-
-    // extract numeric parts (remove currency, commas, spaces)
     const numMatches = s.match(/[\d,]+(?:\.\d+)?/g);
     if (!numMatches) return 0;
-
-    const nums = numMatches.map(token => {
-      const clean = token.replace(/,/g, "");
-      const n = parseFloat(clean);
-      return isNaN(n) ? 0 : n;
-    }).filter(n => n > 0);
-
+    const nums = numMatches.map(token => parseFloat(token.replace(/,/g, ""))).filter(n => !isNaN(n) && n > 0);
     if (nums.length === 0) return 0;
 
-    // scale numbers appropriately
     const scaled = nums.map(n => {
-      if (isLpa) return n * 100000;   // 1 LPA = 100,000
-      if (isK) return n * 1000;       // e.g. 20k -> 20000
-      return n;                       // already in rupees
-    }).map(n => isMonthly ? n * 12 : n); // annualize monthly
+      if (isLpa) return n * 100000;
+      if (isK) return n * 1000;
+      return n;
+    }).map(n => isMonthly ? n * 12 : n);
 
-    // use average for ranges
     return scaled.reduce((a, b) => a + b, 0) / scaled.length;
   }
+
   function applyFilters() {
     const selectedDate = document.querySelector("input[name='datePosted']:checked")?.id;
-    const selectedExperience = Array.from(document.querySelectorAll("#internship:checked, #entry:checked, #associate:checked, #mid-senior:checked, #director:checked")).map(cb => cb.id);
-    const selectedJobTypes = Array.from(document.querySelectorAll("#fulltime:checked, #parttime:checked, #contract:checked, #remote:checked")).map(cb => cb.id);
+    // Correctly select all checked experience checkboxes by their shared name
+    const selectedExperience = Array.from(document.querySelectorAll("input[name='experienceLevel']:checked")).map(cb => cb.id);
     const keyword = searchBox.value.trim().toLowerCase();
     const location = locationBox.value.trim().toLowerCase();
 
+    // **CRITICAL FIX:** Always start filtering from the original, complete list of jobs
     let filteredJobs = jobsData.slice();
 
     // Date filter
@@ -238,14 +224,15 @@
     if (selectedExperience.length > 0) {
       filteredJobs = filteredJobs.filter(job => {
         const exp = job.experience.toLowerCase();
-        if (selectedExperience.includes("internship") && exp.includes("intern")) return true;
         const match = exp.match(/(\d+)-?(\d+)?/);
         let min = 0, max = 0;
         if (match) {
-          min = parseInt(match[1]);
-          max = match[2] ? parseInt(match[2]) : min;
+          min = parseInt(match[1], 10);
+          max = match[2] ? parseInt(match[2], 10) : min;
         }
+        
         return selectedExperience.some(level => {
+          if (level === "internship") return exp.includes("intern");
           switch (level) {
             case "entry": return min <= 2;
             case "associate": return min >= 1 && max <= 3;
@@ -255,11 +242,6 @@
           }
         });
       });
-    }
-
-    // Job type filter
-    if (selectedJobTypes.length > 0) {
-      filteredJobs = filteredJobs.filter(job => selectedJobTypes.some(type => job.job_type?.toLowerCase().includes(type)));
     }
 
     // Search filter
@@ -275,34 +257,28 @@
     }
 
     // Sorting
-    switch (sortBy.value) {
-      case "relevant":
-        break;
-      case "recent":
-        filteredJobs.sort((a, b) => new Date(b.job_posted) - new Date(a.job_posted));
-        break;
-      case "salaryHigh":
-        filteredJobs.sort((a, b) => getSalaryValue(b.salary) - getSalaryValue(a.salary));
-        break;
-      default:
-        break;
+    const sortValue = sortBy.value;
+    if (sortValue === "recent") {
+      filteredJobs.sort((a, b) => new Date(b.job_posted) - new Date(a.job_posted));
+    } else if (sortValue === "salaryHigh") {
+      filteredJobs.sort((a, b) => getSalaryValue(b.salary) - getSalaryValue(a.salary));
     }
 
     renderJobs(filteredJobs);
   }
 
-  // 🔹 Event listeners
-  document.querySelectorAll("input").forEach(input => input.addEventListener("change", applyFilters));
+  // Event listeners
+  document.querySelectorAll("input[type='radio'], input[type='checkbox']").forEach(input => input.addEventListener("change", applyFilters));
   sortBy.addEventListener("change", applyFilters);
   searchBtn.addEventListener("click", applyFilters);
-
+  
   clearBtn.addEventListener("click", e => {
     e.preventDefault();
-    document.querySelectorAll("input").forEach(input => input.checked = false);
+    document.querySelectorAll("input[type='radio'], input[type='checkbox']").forEach(input => input.checked = false);
     searchBox.value = "";
     locationBox.value = "";
     sortBy.value = "relevant";
-    renderJobs(jobsData);
+    renderJobs(jobsData); // Render the original full list
   });
 
   // Initial render
