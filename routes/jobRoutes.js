@@ -3,7 +3,18 @@ import upload from '../config/multer.js';
 import sendConfirmationEmail from '../middleware/emailConfirm.js';
 import { ensureAuth, authorizeJobOwner } from '../middleware/auth.js';
 import { validateJob, validateApplication } from '../middleware/validate.js';
-import { searchJobs, listJobs, jobDetail, newJobForm, createJobPost, editJobForm, updateJobPost, deleteJobPost, applicantsList, applyToJob } from '../controllers/controllers/jobController.js';
+import { 
+    searchJobs, 
+    listJobs, 
+    jobDetail, 
+    newJobForm, 
+    createJobPost, 
+    editJobForm, 
+    updateJobPost, 
+    deleteJobPost, 
+    applicantsList, 
+    applyToJob 
+} from '../controllers/jobController.js';
 import { findJobById } from '../models/Job.js';
 
 const router = Router();

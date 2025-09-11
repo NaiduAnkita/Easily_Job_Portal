@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { landing } from '../controllers/controllers/jobController.js';
+import { landing } from '../controllers/jobController.js';
 
 const router = Router();
 
