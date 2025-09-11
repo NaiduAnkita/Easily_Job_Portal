@@ -1,14 +1,18 @@
+
+
 import { v4 as uuid } from 'uuid';
 
-const users = [];
+const users = [{
+      id: "owner-123",
+      name: "Naidu Ankita",
+      email: "naiduankita21@gmail.com",
+      password: "password",}];
 
 export function getAllUsers() {
   return users;
 }
 
 export function addUser({ name, email, password }) {
-  const exists = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-  if (exists) throw new Error('Email already registered');
   const user = { id: uuid(), name, email, password };
   users.push(user);
   return user;
@@ -23,6 +27,7 @@ export function confirmLogin(email, password) {
   if (user && user.password === password) return user;
   return null;
 }
+
 // export default class UserModel{
 
 // static users = [{

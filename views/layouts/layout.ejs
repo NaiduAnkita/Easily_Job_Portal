@@ -19,6 +19,7 @@
   <link href="https://fonts.cdnfonts.com/css/satoshi" rel="stylesheet">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/css/404.css" />
   <link rel="stylesheet" href="/css/index.css" />
@@ -39,9 +40,9 @@
       --text-light: #6c757d;
       --bg-light: #f9fafb;
       --white: #ffffff;
-      --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
-      --shadow-md: 0 8px 24px rgba(0,0,0,0.09);
-      --shadow-hover: 0 10px 30px rgba(92,77,225,0.15);
+      --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.09);
+      --shadow-hover: 0 10px 30px rgba(92, 77, 225, 0.15);
       --border-radius-sm: 8px;
       --border-radius-md: 12px;
       --border-radius-lg: 20px;
@@ -213,8 +214,8 @@
       }
     }
 
-   /* Footer Enhancement */
-   .footer {
+    /* Footer Enhancement */
+    .footer {
       background-color: white;
       padding-top: 2rem;
       margin-top: 2rem;
@@ -298,27 +299,24 @@
     }
 
     .nI-gNb-footer__separator {
-    background: #e7e7f1;
-    background: var(--N400, #e7e7f1);
-    height: 1px;
-    margin: 40px auto;
-    opacity: .8;
-    width: 1120px;
-}
+      background: #e7e7f1;
+      background: var(--N400, #e7e7f1);
+      height: 1px;
+      margin: 40px auto;
+      opacity: .8;
+      width: 1120px;
+    }
 
-    #search-btn{
-      font-weight:800;
+    #search-btn {
+      font-weight: 800;
       padding: 0.6rem 1.2rem;
       color: whitesmoke;
       transition: all 0.3s;
     }
 
-    #search-btn:hover{
+    #search-btn:hover {
       box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px;
     }
-
-
-    
   </style>
 </head>
 
@@ -346,19 +344,21 @@
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="dropdowns">
-              <% if (locals.user) { %>  
+              <% if (locals.user) { %>
                 <div class="d-flex">
-                  <div style="margin-right: 10px;"><%= user.name %></div>
+                  <div style="margin-right: 10px;">
+                    <%= user.name %>
+                  </div>
                   <i class="fa fa-chevron-down fa-2xs" style="margin-top: 10px;font-size: 14px;"></i>
-                </div>    
+                </div>
 
-              <% } else { %>
-                <div class="d-flex">
-                  <div style="margin-right: 10px;">Recruiter</div>
-                  <i class="fa fa-chevron-down fa-2xs" style="margin-top: 10px;font-size: 14px;"></i>
-                </div>    
-              <% } %>
-              </a>
+                <% } else { %>
+                  <div class="d-flex">
+                    <div style="margin-right: 10px;">Recruiter</div>
+                    <i class="fa fa-chevron-down fa-2xs" style="margin-top: 10px;font-size: 14px;"></i>
+                  </div>
+                  <% } %>
+            </a>
             <ul class="dropdown-menu">
               <% if (locals.user) { %>
                 <li>
@@ -374,19 +374,27 @@
                     <i class="fas fa-plus-circle me-2" style="font-size: 12px;"></i>Post New Job
                   </a>
                 </li>
-              <% } else { %>
-                <li>
-                  <a class="dropdown-item" href="/login" style="font-size: 14px;">
-                    <i class="fas fa-sign-in-alt me-2" style="font-size: 12px;"></i>Login
-                  </a>
-                </li>
-              <% } %>
+                <% } else { %>
+                  <li>
+                    <a class="dropdown-item" href="/login" style="font-size: 14px;">
+                      <i class="fas fa-sign-in-alt me-2" style="font-size: 12px;"></i>Login
+                    </a>
+                  </li>
+                  <% } %>
             </ul>
           </li>
-          
+
         </ul>
-        <form class="d-flex" role="search">
+        <!-- <form action="/search/" method="get" class="d-flex" role="search">
           <input class="form-control-sm me-2" type="search" placeholder="Search jobs..." aria-label="Search" />
+          <button class="btn btn-primary btn-sm" type="submit" id="search-btn">
+            <i class="fas fa-search me-1"></i>Search
+          </button>
+        </form> -->
+        <!-- Replace the existing search form with this -->
+        <form action="/search" method="get" class="d-flex" role="search">
+          <input class="form-control-sm me-2" type="search" name="q" placeholder="Search jobs..." aria-label="Search"
+            required />
           <button class="btn btn-primary btn-sm" type="submit" id="search-btn">
             <i class="fas fa-search me-1"></i>Search
           </button>
@@ -394,7 +402,7 @@
       </div>
     </div>
   </nav>
-<div class="qsb-header-container"></div>
+  <div class="qsb-header-container"></div>
   <div class="container-fluid">
     <%- body %>
   </div>
@@ -404,7 +412,8 @@
       <div class="row g-4">
         <div class="col-lg-3 col-md-6">
           <h5 class="footer-title">About Easily</h5>
-          <p class="text-muted mb-4">Your go-to platform for finding dream jobs. We connect talented professionals with top companies worldwide.</p>
+          <p class="text-muted mb-4">Your go-to platform for finding dream jobs. We connect talented professionals with
+            top companies worldwide.</p>
           <div class="social-icons">
             <a href="#"><i class="fab fa-linkedin"></i></a>
             <a href="#"><i class="fab fa-twitter"></i></a>
@@ -412,22 +421,26 @@
             <a href="#"><i class="fab fa-instagram"></i></a>
           </div>
         </div>
-        
+
         <div class="col-lg-3 col-md-6">
           <h5 class="footer-title">Quick Links</h5>
           <a href="/jobs" class="footer-link">Find Jobs</a>
           <a href="/postjob" class="footer-link">Post a Job</a>
-          <a href="/about" class="footer-link">About Us</a>
-          <a href="/contact" class="footer-link">Contact Us</a>
+          <!-- <a href="/about" class="footer-link">About Us</a>
+          <a href="/contact" class="footer-link">Contact Us</a> -->
         </div>
-        
+
         <div class="col-lg-3 col-md-6">
           <h5 class="footer-title">Contact</h5>
-          <p class="text-muted mb-2"><i class="fas fa-map-marker-alt me-2"></i>123 Job Street, Job City</p>
-          <p class="text-muted mb-2"><i class="fas fa-phone me-2"></i>(123) 456-7890</p>
-          <p class="text-muted mb-2"><i class="fas fa-envelope me-2"></i>info@easily.com</p>
+          <!-- <p class="text-muted mb-2"><i class="fas fa-map-marker-alt me-2"></i>123 Job Street, Job City</p>
+          <p class="text-muted mb-2"><i class="fas fa-phone me-2"></i>(123) 456-7890</p> -->
+          <p class="text-muted mb-2">
+            <i class="fas fa-envelope me-2"></i>
+            <a href="mailto:jobportaleasily@gmail.com" class="text-muted">jobportaleasily@gmail.com</a>
+          </p>
+
         </div>
-        
+
         <div class="col-lg-3 col-md-6">
           <h5 class="footer-title">Newsletter</h5>
           <p class="text-muted mb-4">Get the latest job updates and career tips.</p>
@@ -437,9 +450,9 @@
           </form>
         </div>
       </div>
-      
+
       <hr class="my-5">
-      
+
       <div class="text-center">
         <p class="text-muted">&copy; <%= new Date().getFullYear() %> Easily. All rights reserved.</p>
       </div>
@@ -453,4 +466,3 @@
 </body>
 
 </html>
-

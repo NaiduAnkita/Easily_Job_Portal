@@ -2,13 +2,19 @@
   <div class="gif">
     <img src="https://i.postimg.cc/2yrFyxKv/giphy.gif" alt="gif_ing" />
   </div>
-  <div class="content">
-    <h1 class="main-heading">This page is gone.</h1>
-    <p class="sub-heading">
-      ...maybe the page you're looking for is not found or never existed.
-    </p>
-    <a href="/">
-      <button id="error-button">Back to home <i class="fa-regular fa-thumbs-up"></i></button>
-    </a>
-  </div>
+  <% if (typeof errors !== 'undefined' && errors && errors.length > 0) { %>
+ <div class="error-container">
+    <!-- <div class="error-title"><%=title%></div> -->
+    <div class="error-description">Oops! <%= errors[0].msg %></div>
+    <p style="color: white;">The Job you are looking for might be in another universe.</p>
+    <a href="/" class="error-button">Go back to Home <i class="fa-solid fa-house"></i></a>
+</div>
+<% } else { %>
+    <div class="error-container">
+        <div class="error-title">404</div>
+        <div class="error-description">Oops! Page Not Found!</div>
+        <p style="color: white;">The page you are looking for might be in another universe.</p>
+        <a href="/" class="error-button">Go back to Home <i class="fa-solid fa-house"></i></a>
+    </div>
+<% } %>
 </div>

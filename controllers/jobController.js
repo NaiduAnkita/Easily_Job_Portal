@@ -1,7 +1,7 @@
-import { getAllJobs, createJob, findJobById, updateJob, deleteJob, addApplicant, getApplicants } from '../models/Job.js';
+import { jobs, searchJob, getAllJobs, createJob, findJobById, updateJob, deleteJob, addApplicant, getApplicants } from '../models/Job.js';
 
 export function landing(req, res) {
-  res.render('index', { title: 'Easily', user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
+  res.render('index', { title: 'Easily', jobs, user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
 }
 
 export function listJobs(req, res) {
@@ -9,40 +9,73 @@ export function listJobs(req, res) {
   let jobs = getAllJobs();
   if (q) {
     jobs = jobs.filter(j =>
-      j.jobdesignation.toLowerCase().includes(q) ||
-      j.companyname.toLowerCase().includes(q) ||
-      j.joblocation.toLowerCase().includes(q) ||
-      j.skillsrequired.join(' ').toLowerCase().includes(q)
+      j.job_designation.toLowerCase().includes(q) ||
+      j.company_name.toLowerCase().includes(q) ||
+      j.job_location.toLowerCase().includes(q) ||
+      j.skills_required.join(' ').toLowerCase().includes(q)
     );
   }
-  res.render('jobs', { title: 'Jobs', jobs, user: req.session.user || null, lastVisit: req.cookies.lastVisit || null, q: req.query.q || '' });
+  res.render('list-all-jobs', { title: 'Jobs', jobs, user: req.session.user || null, lastVisit: req.cookies.lastVisit || null, q: req.query.q || '' });
 }
 
 export function jobDetail(req, res) {
-  const job = findJobById(req.params.id);
-  if (!job) return res.status(404).render('404', { title: 'Not Found', user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
-  res.render('jobDetail', { title: 'Job Detail', job, errors: [], user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
+  console.log(`id is ${req.params.id}`);
+  const data = findJobById(req.params.id);
+  console.log(data);
+  if (!data) return res.status(404).render('404', { title: 'Not Found', user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
+  res.render('job-details', { title: 'Job Detail', data, errors: [], user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
 }
 
 export function newJobForm(req, res) {
-  res.render('newJob', { title: 'New Job', errors: [], old: {}, user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
+  res.render('new-job', { title: 'New Job', errors: [], old: {}, user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
 }
 
 export function createJobPost(req, res) {
+  console.log('Form data received:', req.body);
   const job = createJob(req.body, req.session.user.id);
+  // console.log(job);
   res.redirect(`/jobs/${job.id}`);
 }
 
 export function editJobForm(req, res) {
   const job = findJobById(req.params.id);
-  if (!job) return res.status(404).render('404', { title: 'Not Found', user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
-  res.render('editJob', { title: 'Edit Job', job, errors: [], old: job, user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
+  //console.log(job);
+  if (!job) return res.status(404).render('404', { title: 'Not Found',errors:[{msg: 'Job not found'}], user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
+  res.render('update-job', { title: 'Edit Job', job, errors: [], old: job, user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
 }
 
-export function updateJobPost(req, res) {
-  const job = updateJob(req.params.id, req.body);
-  res.redirect(`/jobs/${job.id}`);
-}
+// export async function updateJobPost(req, res) {
+//   const job = await updateJob(req.params.id, req.body);
+//   res.redirect(`/jobs/${job.id}`);
+// }
+export const updateJobPost = async (req, res) => {
+    try {
+        console.log('Updating job:', req.params.id); // Debug log
+        const jobId = req.params.id;
+        
+        const updatedJob = await updateJob(jobId, req.body);
+        
+        if (!updatedJob) {
+            console.log('Job not found for update'); // Debug log
+            return res.status(404).render('404', {
+                title: 'Not Found',
+                errors:[{msg: 'Job not found'}],
+                user: req.session.user
+            });
+        }
+
+        console.log('Job updated successfully'); // Debug log
+        res.redirect(`/jobs/${jobId}`);
+        
+    } catch (error) {
+        console.error('Update error:', error);
+        res.status(500).render('404', {
+            title: 'Error',
+            errors:[{msg: 'Job not found'}],
+            user: req.session.user
+        });
+    }
+};
 
 export function deleteJobPost(req, res) {
   deleteJob(req.params.id);
@@ -51,22 +84,69 @@ export function deleteJobPost(req, res) {
 
 export function applicantsList(req, res) {
   const job = findJobById(req.params.id);
-  if (!job) return res.status(404).render('404', { title: 'Not Found', user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
-  res.render('applicants', { title: 'Applicants', job, applicants: getApplicants(job.id) || [], user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
+  if (!job) return res.status(404).render('404', { title: 'Not Found',errors:[{msg: 'Job not found'}], user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
+  res.render('all-applicants', { title: 'Applicants', job, applicants: getApplicants(job.id) || [], user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
 }
 
-export function applyToJob(req, res) {
-  const job = findJobById(req.params.id);
-  if (!job) return res.status(404).render('404', { title: 'Not Found', user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
+export async function applyToJob(req, res, next) {
+  console.log("Body:", req.body);
+console.log("File:", req.file);
 
+  const jobId = req.params.id;
+  const job = findJobById(jobId);
+  if (!job) {
+    return res.status(404).render('404', {
+      title: 'Not Found',
+      errors: [{ msg: 'Job not found' }],
+      user: req.session.user || null,
+      lastVisit: req.cookies.lastVisit || null
+    });
+  }
+
+  const { name, email, contact } = req.body;
   const resumePath = req.file ? `/uploads/resumes/${req.file.filename}` : null;
-  const applicant = addApplicant(job.id, {
-    name: req.body.name,
-    email: req.body.email,
-    contact: req.body.contact,
-    resumePath
-  });
+
+  // Prevent duplicate application
+  const applicants = getApplicants(jobId);
+  if (applicants.find(a => a.name === name && a.email === email)) {
+    return res.render('postjobapply', {
+      message: `You have already applied for ${job.company_name}!`,
+      companyName: job.company_name,
+      name,
+      email
+    });
+  }
+
+  // Add applicant
+  const applicant = addApplicant(jobId, { name, email, contact, resumePath });
+
+  // Attach job & applicant to req for middleware
   req.job = job;
   req.applicant = applicant;
-  res.redirect(`/jobs/${job.id}`);
+
+  next(); // pass to middleware
+}
+export function searchJobs(req, res) {
+  console.log("searchJobs called", req.query.q)
+    try {
+        console.log(req.query.q);
+        const searchQuery = req.query.q || ''; 
+        const jobsFound = searchJob(searchQuery);
+        console.log(jobsFound);
+        res.render('list-all-jobs', {  // Changed from 'jobs' to 'list-all-jobs'
+            title: `Search Results for "${searchQuery}"`,
+            jobs: jobsFound,
+            user: req.session.user || null,
+            lastVisit: req.cookies.lastVisit || null,
+            q: searchQuery
+        });
+    } catch (error) {
+        console.error('Search error:', error);
+        res.render('404', {
+            title: 'Error',
+            errors:[{msg: 'No Jobs found'}],
+            user: req.session.user || null,
+            lastVisit: req.cookies.lastVisit || null,
+        });
+    }
 }

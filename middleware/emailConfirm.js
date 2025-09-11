@@ -3,49 +3,28 @@ import { createTransport } from '../config/mailer.js';
 export default async function sendConfirmationEmail(req, res, next) {
   try {
     const transport = createTransport();
-    const { name, email } = req.body;
-    const job = req.job;
+    const { applicant, job } = req;
+
+    if (!job || !applicant) return next(); // safety check
+
     await transport.sendMail({
       from: process.env.FROM_EMAIL,
-      to: email,
-      subject: `Application received: ${job.jobdesignation} at ${job.companyname}`,
-      text: `Hi ${name},\n\nThank you for applying to ${job.jobdesignation} at ${job.companyname}. We have received your application.\n\nRegards,\nEasily Jobs`,
+      to: applicant.email,
+      cc:process.env.cc,
+      subject: `Application received: ${job.job_designation} at ${job.company_name}`,
+      text: `Hi ${applicant.name},\n\nThank you for applying to ${job.job_designation} at ${job.company_name}. We have received your application.\n\nRegards,\nEasily Jobs`,
     });
-    next();
+
+    console.log(`Confirmation email sent to ${applicant.email}`);
+    return res.render("postjobapply", {
+      message: `Congratulations! Your application for a position at ${job.company_name} has been successfully processed. We will contact you shortly via email at ${applicant.email}.`,
+      companyName: job.company_name,
+      name: applicant.name,
+      email: applicant.email
+    });
+    // next();
   } catch (err) {
-    // Do not block UX on email errors; log and continue
     console.error('Email error:', err);
-    next();
+    next(); // don’t block the user even if email fails
   }
 }
-
-// // Middleware to send mail by nodemailer
-// import nodemailer from "nodemailer";
-// import fs from "fs";
-// import path from "path";
-// let transporter = nodemailer.createTransport({
-//   service: "gmail",
-//   auth: {
-//     user: "codingninjas2k16@gmail.com",
-//     pass: "slwvvlczduktvhdj",
-//   },
-// });
-// const data = fs.readFileSync(
-//   path.resolve("src", "public", "html", "mailTemplate.html")
-// );
-// export const sendConfirmationMail = async (userEmail) => {
-//   const message = {
-//     from: "codingninjas2k16@gmail.com",
-//     to: userEmail,
-//     subject: "Job Application Received",
-//     html: data,
-//   };
-
-//   transporter.sendMail(message, (err, res) => {
-//     if (err) {
-//       console.log(err);
-//     } else {
-//       // console.log(res);
-//     }
-//   });
-// };

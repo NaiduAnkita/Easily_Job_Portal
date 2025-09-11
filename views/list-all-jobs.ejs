@@ -3,10 +3,11 @@
     <div class="filter-section">
       <div class="filter-heading">
         <span>Job filters</span>
-        <a href="#" class="filter-edit">Clear all</a>
+        <a href="#" class="filter-edit" id="clearFilters">Clear all</a>
       </div>
     </div>
-    
+
+    <!-- Date Posted -->
     <div class="filter-section">
       <div class="filter-heading">Date posted</div>
       <div class="filter-option">
@@ -26,7 +27,8 @@
         <label for="pastMonth">Past month</label>
       </div>
     </div>
-    
+
+    <!-- Experience -->
     <div class="filter-section">
       <div class="filter-heading">Experience level</div>
       <div class="filter-option">
@@ -34,11 +36,11 @@
         <label for="internship">Internship</label>
       </div>
       <div class="filter-option">
-        <input type="checkbox" id="entry" checked>
+        <input type="checkbox" id="entry">
         <label for="entry">Entry level</label>
       </div>
       <div class="filter-option">
-        <input type="checkbox" id="associate" checked>
+        <input type="checkbox" id="associate">
         <label for="associate">Associate</label>
       </div>
       <div class="filter-option">
@@ -50,11 +52,12 @@
         <label for="director">Director</label>
       </div>
     </div>
-    
+
+    <!-- Job Type -->
     <div class="filter-section">
       <div class="filter-heading">Job type</div>
       <div class="filter-option">
-        <input type="checkbox" id="fulltime" checked>
+        <input type="checkbox" id="fulltime">
         <label for="fulltime">Full-time</label>
       </div>
       <div class="filter-option">
@@ -66,110 +69,209 @@
         <label for="contract">Contract</label>
       </div>
       <div class="filter-option">
-        <input type="checkbox" id="remote" checked>
+        <input type="checkbox" id="remote">
         <label for="remote">Remote</label>
       </div>
     </div>
   </div>
-  
+
+  <!-- Jobs Content -->
   <div class="jobs-content">
     <div class="search-container">
       <div class="search-input">
         <i class="bi bi-search"></i>
-        <input type="text" placeholder="Search job titles or keywords">
+        <input type="text" id="searchBox" placeholder="Search job titles or keywords">
       </div>
       <div class="location-input">
         <i class="bi bi-geo-alt"></i>
-        <input type="text" placeholder="Location">
+        <input type="text" id="locationBox" placeholder="Location">
       </div>
-      <button class="search-btn">Search</button>
+      <button class="search-btn" id="searchBtn">Search</button>
     </div>
-    
+
     <div class="jobs-section-header">
-      <div class="jobs-found">235 jobs found</div>
+      <div class="jobs-found"><span id="jobsCount"><%= jobs.length %></span> jobs found</div>
       <div class="sort-options">
         <span class="sort-by">Sort by:</span>
-        <select class="sort-select">
-          <option>Most relevant</option>
-          <option>Recent</option>
-          <option>Salary (high to low)</option>
+        <select class="sort-select" id="sortSelect">
+          <option value="relevant">Most relevant</option>
+          <option value="recent">Recent</option>
+          <option value="salaryHigh">Salary (high to low)</option>
         </select>
       </div>
     </div>
-    
-    <div class="job-list">
-      <% if(jobs.length === 0){ %>
-        <h1 class="text-danger text-center">No jobs found</h1>
-      <% } %>
-      
-      <% jobs.forEach(function(job){ %>
-      <div class="job-card">
-        <% if(job.featured){ %>
-          <div class="featured-badge">
-            <i class="bi bi-star-fill"></i> Featured
-          </div>
-        <% } %>
-        <div class="job-logo">
-          <img src="<%= job.logo %>" alt="Google">
-        </div>
-        <div class="job-content">
-          <h3 class="job-title-all"><%= job.job_designation %></h3>
-          <p class="company-name-all"><%= job.company_name %></p>
-          <div class="job-location-all">
-            <i class="bi bi-geo-alt"></i> <%= job.job_location %>
-          </div>
-          <div class="job-details">
-            <div class="job-detail">
-              <i class="fa-solid fa-briefcase"></i> <%= job.experience %>
-            </div>
-            <div class="job-detail salary">
-              <i class="fa-solid fa-wallet"></i> <%= job.salary %>
-            </div>
-            <div class="job-detail">
-              <i class="fa-solid fa-users"></i><%= job.employees %>
-            </div>
-            <span class="easy-apply-badge">Easy Apply</span>
-          </div>
-          <div class="skills">
-            <% job.skills_required.forEach(function(skill){ %>
-              <span class="skill"><%= skill %></span>
-            <% }); %>
-          </div>
-          <div class="job-actions">
-            <div class="job-posted">
-              <%= job.job_posted %> · 127 applicants
-            </div>
-            <div class="action-btns">
-              <button class="save-btn">
-                <i class="bi bi-bookmark"></i> Save
-              </button>
-              <!-- Changed Apply button to redirect using an anchor tag -->
-              <a href="/job/<%= job.id %>" class="apply-btn btn btn-primary">
-                <i class="bi bi-send"></i> View
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-      <% }); %>
-    </div>
-    
-    <nav aria-label="Page navigation">
-      <ul class="pagination">
-        <li class="page-item">
-          <a class="page-link" href="#" aria-label="Previous">
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        </li>
-        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item">
-          <a class="page-link" href="#" aria-label="Next">
-            <span aria-hidden="true">&raquo;</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
+
+    <div class="job-list"></div>
   </div>
 </div>
+
+<script>
+  // ✅ Inject jobs
+  const jobsData = <%- JSON.stringify(jobs) %>;
+
+  const jobList = document.querySelector(".job-list");
+  const clearBtn = document.querySelector("#clearFilters");
+  const jobsCount = document.querySelector("#jobsCount");
+  const sortBy = document.querySelector("#sortSelect");
+  const searchBox = document.querySelector("#searchBox");
+  const locationBox = document.querySelector("#locationBox");
+  const searchBtn = document.querySelector("#searchBtn");
+
+  function renderJobs(jobs) {
+    jobList.innerHTML = "";
+    if (jobs.length === 0) {
+      jobList.innerHTML = `<h1 class="text-danger text-center">No jobs found</h1>`;
+      jobsCount.textContent = 0;
+      return;
+    }
+    jobsCount.textContent = jobs.length;
+    jobs.forEach(job => {
+      const skills = job.skills_required.map(skill => `<span class="skill">${skill}</span>`).join("");
+      const jobCard = `
+        <div class="job-card">
+          <div class="job-logo"><img src="${job.logo}" alt="${job.company_name}"></div>
+          <div class="job-content">
+            <h3 class="job-title-all">${job.job_designation}</h3>
+            <p class="company-name-all">${job.company_name}</p>
+            <div class="job-location-all"><i class="bi bi-geo-alt"></i> ${job.job_location}</div>
+            <div class="job-details">
+              <div class="job-detail"><i class="fa-solid fa-briefcase"></i> ${job.experience}</div>
+              <div class="job-detail salary"><i class="fa-solid fa-wallet"></i> ${job.salary}</div>
+            </div>
+            <div class="skills">${skills}</div>
+            <div class="job-actions">
+              <a href="/jobs/${job.id}" class="apply-btn btn btn-primary"><i class="bi bi-send"></i> View</a>
+            </div>
+          </div>
+        </div>`;
+      jobList.insertAdjacentHTML("beforeend", jobCard);
+    });
+  }
+
+  function getSalaryValue(salaryStr) {
+  if (!salaryStr) return 0;
+  const s = salaryStr.toString().toLowerCase();
+
+  // detect multipliers
+  const isLpa = /lpa|lac|lakh|lacs|lakhs/.test(s);
+  const isK = /\d+k/.test(s);
+  const isMonthly = /per month|monthly|pcm|pm\b/.test(s);
+
+  // extract numeric parts (remove currency, commas, spaces)
+  const numMatches = s.match(/[\d,]+(?:\.\d+)?/g);
+  if (!numMatches) return 0;
+
+  const nums = numMatches.map(token => {
+    const clean = token.replace(/,/g, "");
+    const n = parseFloat(clean);
+    return isNaN(n) ? 0 : n;
+  }).filter(n => n > 0);
+
+  if (nums.length === 0) return 0;
+
+  // scale numbers appropriately
+  const scaled = nums.map(n => {
+    if (isLpa) return n * 100000;   // 1 LPA = 100,000
+    if (isK) return n * 1000;       // e.g. 20k -> 20000
+    return n;                       // already in rupees
+  }).map(n => isMonthly ? n * 12 : n); // annualize monthly
+
+  // use average for ranges
+  return scaled.reduce((a, b) => a + b, 0) / scaled.length;
+}
+  function applyFilters() {
+    const selectedDate = document.querySelector("input[name='datePosted']:checked")?.id;
+    const selectedExperience = Array.from(document.querySelectorAll("#internship:checked, #entry:checked, #associate:checked, #mid-senior:checked, #director:checked")).map(cb => cb.id);
+    const selectedJobTypes = Array.from(document.querySelectorAll("#fulltime:checked, #parttime:checked, #contract:checked, #remote:checked")).map(cb => cb.id);
+    const keyword = searchBox.value.trim().toLowerCase();
+    const location = locationBox.value.trim().toLowerCase();
+
+    let filteredJobs = jobsData.slice();
+
+    // Date filter
+    if (selectedDate) {
+      const now = new Date();
+      filteredJobs = filteredJobs.filter(job => {
+        const postedDate = new Date(job.job_posted);
+        if (selectedDate === "past24") return (now - postedDate) < 24 * 60 * 60 * 1000;
+        if (selectedDate === "past3days") return (now - postedDate) < 3 * 24 * 60 * 60 * 1000;
+        if (selectedDate === "pastWeek") return (now - postedDate) < 7 * 24 * 60 * 60 * 1000;
+        if (selectedDate === "pastMonth") return (now - postedDate) < 30 * 24 * 60 * 60 * 1000;
+        return true;
+      });
+    }
+
+    // Experience filter
+    if (selectedExperience.length > 0) {
+      filteredJobs = filteredJobs.filter(job => {
+        const exp = job.experience.toLowerCase();
+        if (selectedExperience.includes("internship") && exp.includes("intern")) return true;
+        const match = exp.match(/(\d+)-?(\d+)?/);
+        let min = 0, max = 0;
+        if (match) {
+          min = parseInt(match[1]);
+          max = match[2] ? parseInt(match[2]) : min;
+        }
+        return selectedExperience.some(level => {
+          switch (level) {
+            case "entry": return min <= 2;
+            case "associate": return min >= 1 && max <= 3;
+            case "mid-senior": return min >= 3 && max <= 7;
+            case "director": return min >= 8;
+            default: return false;
+          }
+        });
+      });
+    }
+
+    // Job type filter
+    if (selectedJobTypes.length > 0) {
+      filteredJobs = filteredJobs.filter(job => selectedJobTypes.some(type => job.job_type?.toLowerCase().includes(type)));
+    }
+
+    // Search filter
+    if (keyword) {
+      filteredJobs = filteredJobs.filter(job =>
+        job.job_designation.toLowerCase().includes(keyword) ||
+        job.company_name.toLowerCase().includes(keyword) ||
+        job.skills_required.some(skill => skill.toLowerCase().includes(keyword))
+      );
+    }
+    if (location) {
+      filteredJobs = filteredJobs.filter(job => job.job_location.toLowerCase().includes(location));
+    }
+
+    // Sorting
+    switch (sortBy.value) {
+      case "relevant":
+        break;
+      case "recent":
+        filteredJobs.sort((a, b) => new Date(b.job_posted) - new Date(a.job_posted));
+        break;
+      case "salaryHigh":
+        filteredJobs.sort((a, b) => getSalaryValue(b.salary) - getSalaryValue(a.salary));
+        break;
+      default:
+        break;
+    }
+
+    renderJobs(filteredJobs);
+  }
+
+  // 🔹 Event listeners
+  document.querySelectorAll("input").forEach(input => input.addEventListener("change", applyFilters));
+  sortBy.addEventListener("change", applyFilters);
+  searchBtn.addEventListener("click", applyFilters);
+
+  clearBtn.addEventListener("click", e => {
+    e.preventDefault();
+    document.querySelectorAll("input").forEach(input => input.checked = false);
+    searchBox.value = "";
+    locationBox.value = "";
+    sortBy.value = "relevant";
+    renderJobs(jobsData);
+  });
+
+  // Initial render
+  renderJobs(jobsData);
+</script>

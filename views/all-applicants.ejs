@@ -22,7 +22,7 @@
           </tr>
         </thead>
         <tbody>
-          <%allApplicants.forEach((applicant)=> {%>
+          <%applicants.forEach((applicant)=> {%>
           <tr>
             <td>
               <input type="checkbox" class="form-check-input" />
@@ -33,7 +33,7 @@
             </td>
             <td><%=applicant.email%></td>
             <td>
-              <a class="badge badge-primary" href="http://localhost:3200/uploads/<%=applicant.resumePath%>" target="_blank">
+              <a class="badge badge-primary" href="<%=applicant.resumePath%>" target="_blank">
                 View Resume
               </a>
             </td>

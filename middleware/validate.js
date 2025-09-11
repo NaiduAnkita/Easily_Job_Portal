@@ -7,7 +7,7 @@ export const validateRegister = [
   (req, res, next) => {
     const errs = validationResult(req);
     if (!errs.isEmpty()) {
-      return res.status(400).render('register', { title: 'Register', errors: errs.array(), old: req.body, user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
+      return res.status(400).render('user-login', { title: 'Register', errors: errs.array(), old: req.body, user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
     }
     next();
   }
@@ -19,29 +19,41 @@ export const validateLogin = [
   (req, res, next) => {
     const errs = validationResult(req);
     if (!errs.isEmpty()) {
-      return res.status(400).render('login', { title: 'Login', errors: errs.array(), old: req.body, user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
+      return res.status(400).render('user-login', { title: 'Login', errors: errs.array(), old: req.body, user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
     }
     next();
   }
 ];
 
 export const validateJob = [
-  body('jobcategory').trim().notEmpty(),
-  body('jobdesignation').trim().notEmpty(),
-  body('joblocation').trim().notEmpty(),
-  body('companyname').trim().notEmpty(),
+  body('job_category').trim().notEmpty(),
+  body('job_designation').trim().notEmpty(), 
+  body('job_location').trim().notEmpty(),
+  body('company_name').trim().notEmpty(),
+  body('company_founded').isInt({ min: 1800, max: new Date().getFullYear() }),
+  body('employees').trim().notEmpty(),
   body('salary').trim().notEmpty(),
-  body('applyby').isISO8601().withMessage('Valid date'),
-  body('skillsrequired').customSanitizer(v => Array.isArray(v) ? v : (typeof v === 'string' ? v.split(',').map(s => s.trim()).filter(Boolean) : [])),
-  body('numberofopenings').isInt({ min: 1 }),
+  body('apply_by').isISO8601().withMessage('Valid date'),
+  body('skills_required').customSanitizer(v => Array.isArray(v) ? v : (typeof v === 'string' ? v.split(',').map(s => s.trim()).filter(Boolean) : [])),
+  body('number_of_openings').isInt({ min: 1 }),
+  body('experience').trim().notEmpty(),
   (req, res, next) => {
     const errs = validationResult(req);
+    console.log('Validation errors:', errs.array());
+    console.log('Form data received:', req.body);
     if (!errs.isEmpty()) {
-      return res.status(400).render(req.viewTemplate || 'newJob', { title: 'Job', errors: errs.array(), old: req.body, user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
+      return res.status(400).render(req.viewTemplate || 'new-job', { 
+        title: 'Job', 
+        errors: errs.array(), 
+        old: req.body, 
+        user: req.session.user || null, 
+        lastVisit: req.cookies.lastVisit || null 
+      });
     }
     next();
   }
 ];
+
 
 export const validateApplication = [
   body('name').trim().notEmpty(),
@@ -50,7 +62,7 @@ export const validateApplication = [
   (req, res, next) => {
     const errs = validationResult(req);
     if (!errs.isEmpty()) {
-      return res.status(400).render('jobDetail', { title: 'Job', job: req.job, errors: errs.array(), user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
+      return res.status(400).render('404', { title: 'Job', job: req.job, errors: errs.array(), user: req.session.user || null, lastVisit: req.cookies.lastVisit || null });
     }
     next();
   }
