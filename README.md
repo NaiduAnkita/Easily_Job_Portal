@@ -63,6 +63,7 @@ A full-stack Job Portal application built with the **MVC (Model-View-Controller)
 ├── index.js               # Application entry point
 ├── package.json           # Project dependencies and scripts
 └── .env                   # Environment variables
+```
 
 ## ⚙️ Installation & Setup
 
@@ -75,18 +76,21 @@ Ensure you have **Node.js** (v14+) and **npm** installed on your machine.
 ```bash
 git clone <repository-url>
 cd easily_job_portal
+```
 
 ### 3. Install Dependencies
 Run the following command to install all required packages listed in package.json:
 ```bash
 npm install
+```
 
 ### 4. Configure Environment Variables
 Create a .env file in the root directory of the project. Add the following configurations (replace the placeholders with your actual credentials).
 
 Note: If you are using Gmail, you must generate an App Password in your Google Account settings to use as the SMTP_PASS.
 
-```PORT=3200
+```bash
+PORT=3200
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your_email@gmail.com
@@ -94,23 +98,28 @@ SMTP_PASS=your_app_password
 FROM_EMAIL=your_email@gmail.com
 # Optional: CC email for testing
 # cc=your_personal_email@gmail.com
+```
 
 ### 5. Update Start Script (Important)
 The current package.json may point to app.js by default. Since the main entry file is index.js, please update the scripts section in package.json to:
+
 ```JSON
 "scripts": {
   "start": "node index.js",
   "dev": "nodemon index.js"
 }
+```
 
 ### 6. Run the Application
 Development Mode (with auto-reload via Nodemon):
 ```Bash
 npm run dev
+```
 
 Production Mode:
 ```Bash
 npm start
+```
 
 The server will start on http://localhost:3200.
 
